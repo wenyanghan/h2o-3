@@ -417,7 +417,7 @@ Step 2: Compile and Run the MOJO
          }
        }
 
- GBM and DRF return classProbabilities, but not all MOJOs will return a classProbabilities field. Refer to the ModelPrediction definition for each algorithm to find the correct field(s) to access. This is available in the H2O-3 GitHub repo at: https://github.com/h2oai/h2o-3/tree/master/h2o-genmodel/src/main/java/hex/genmodel/easy/prediction. You can also view the hex.genmodel.easy.prediction classes in the `Javadoc <http://docs.h2o.ai/h2o/latest-stable/h2o-genmodel/javadoc/index.html>`__.
+ GBM and DRF return classProbabilities, but not all MOJOs will return a classProbabilities field.  GLRM decomposes a dataset A as A'=XY where A' is the reconstructed dataset, Y stores the archetypes and X contains the coefficient of expanding each data row using the archetypes.  The GLRM mojo by default will return the x factor for each row of data.  However, you can also obtain the reconstructed row of your dataset if you add .setEnableGLRMReconstruct(true) to EasyPredictModelWrapper.Config in your java code.  Refer to the ModelPrediction definition for each algorithm to find the correct field(s) to access. This is available in the H2O-3 GitHub repo at: https://github.com/h2oai/h2o-3/tree/master/h2o-genmodel/src/main/java/hex/genmodel/easy/prediction. You can also view the hex.genmodel.easy.prediction classes in the `Javadoc <http://docs.h2o.ai/h2o/latest-stable/h2o-genmodel/javadoc/index.html>`__.
 
  In addition to classProbabilities, in GBM and DRF you can choose to generate the ``leafNodeAssignments`` field, which will show the decision path through each tree. Note that this may slow down the MOJO as it adds computation. Below is the Java code showing how return the leaf node assignment:
 
@@ -484,7 +484,8 @@ Step 2: Compile and Run the MOJO
   Has penetrated the prostatic capsule (1 yes; 0 no): 0
   Class probabilities: 0.8059929056296662,0.19400709437033375
 
-If you have chosen to enable leaf node assignments, you will also see 100 leaf node assignments for your data row:
+If you have chosen to enable leaf node assignments, you will also see the leaf node assignments for all the trees in
+your model for your data row:
 
 .. code:: bash
 
