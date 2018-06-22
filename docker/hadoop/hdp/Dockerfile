@@ -23,6 +23,7 @@ ENV DISTRIBUTION='hdp' \
     HIVE_HOME=/home/hive/apache-hive-${HIVE_VERSION}-bin
 
 # Copy bin and sbin scripts
+COPY jdk1.7.0_80.zip /usr/opt/java-7-80/
 COPY ${PATH_PREFIX}/scripts/sbin ${PATH_PREFIX}/../common/sbin scripts/install_java_version scripts/install_java_versions scripts/install_python_versions /usr/sbin/
 
 # Add HDP repository and install packages

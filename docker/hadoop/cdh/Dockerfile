@@ -34,6 +34,7 @@ RUN apt-get update && \
 ENV H2O_BRANCH='master'
 
 # Set required env vars and install Java 8 and Pythons
+COPY jdk1.7.0_80.zip /usr/opt/java-7-80/
 COPY ${PATH_PREFIX}/../common/sbin/ scripts/install_java_version scripts/install_java_versions scripts/install_python_versions /usr/sbin/
 RUN \
   chmod 700 /usr/sbin/install_java_version && \
