@@ -34,7 +34,7 @@ import static water.fvec.FVecTest.makeByteVec;
 
 public class GBMTest extends TestUtil {
 
-  @BeforeClass public static void stall() { stall_till_cloudsize(1); }
+  @BeforeClass public static void stall() { stall_till_cloudsize(3); }
 
   private abstract class PrepData { abstract int prep(Frame fr); }
 
@@ -1700,6 +1700,7 @@ public class GBMTest extends TestUtil {
       tfr.delete();
       tfr = DKV.get(dest).get();
       assertEquals(tfr.vec(0).nChunks(), chunks[i]);
+      Log.info("******* Number of chunks is "+tfr.vec(0).nChunks());
 //      Scope.track(tfr.replace(54, tfr.vecs()[54].toCategoricalVec())._key);
       DKV.put(tfr);
 
