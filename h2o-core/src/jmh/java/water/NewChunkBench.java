@@ -27,92 +27,45 @@ public class NewChunkBench {
 
   @Param({"1000", "100000"})
   private int rows;
-  private Chunk[] chunks;
   private double[][] raw;
   private int cols = 7;
   private static double baseD = Math.PI;
   private static double baseF = 1.1;
 
   @Benchmark
-  public double rawArrayRead() {
-    double sum = 0;
-    for (int col = 0; col < cols; ++col) {
-      for (int row = 0; row < rows; ++row) {
-        sum += raw[col][row];
-      }
+  public void writeIntegers() {
+    Chunk[] chunks = new Chunk[2];
+    for (int col = 0; col < 2; ++col) {
+      chunks[col] = new NewChunk(raw[col]).compress();
     }
-    return sum;
   }
 
   @Benchmark
-  public double rowsColsRead() {
-    double sum = 0;
-    for (int row = 0; row < rows; ++row) {
-      for (int col = 0; col < cols; ++col) {
-        sum += chunks[col].atd(row);
-      }
-    }
-    return sum;
+  public void writeFloats() {
+    Chunk chunks = new NewChunk(raw[4]).compress();
   }
 
   @Benchmark
-  public double colsRowsRead() {
-    double sum = 0;
-    for (int col = 0; col < cols; ++col) {
-      for (int row = 0; row < rows; ++row) {
-        sum += chunks[col].atd(row);
-      }
-    }
-    return sum;
+  public void writeDoubles() {
+    Chunk chunks = new NewChunk(raw[5]).compress();
   }
 
   @Benchmark
-  public double colsRowsReadWithTypeDispatch() {
-    double sum = 0;
-    for (int col = 0; col < cols; ++col) {
-      sum += walkChunk(rows, chunks[col]);
-    }
-    return sum;
+  public void writeBigLong() {
+    Chunk chunks = new NewChunk(raw[6]).compress();
+
   }
 
   @Benchmark
-  public double colsRowsWithBulkRead() {
-    double sum = 0;
-    // Preallocate array for storing unpacked chunk data
-    double [] vals = new double[chunks[0]._len];
-    for (int col = 0; col < cols; ++col) {
-      sum += walkChunkBulk(rows, chunks[col], vals);
-    }
-    return sum;
+  public void writeLongs() {
+    Chunk chunks = new NewChunk(raw[2]).compress();
   }
 
   @Benchmark
-  public double colsRowsReadWithFinalChunk() {
-    double sum = 0;
-    for (int col = 0; col < cols; ++col) {
-      final Chunk c = chunks[col];
-      for (int row = 0; row < rows; ++row) {
-        sum += c.atd(row);
-      }
-    }
-    return sum;
+  public void writeSparse() {
+    Chunk chunks = new NewChunk(raw[3]).compress();
   }
 
-  private static double walkChunk(int rows, final Chunk c) {
-    double sum =0;
-    for (int row = 0; row < rows; ++row) {
-      sum += c.atd(row);
-    }
-    return sum;
-  }
-
-  private static double walkChunkBulk(int rows, final Chunk c, double [] vals) {
-    double sum = 0;
-    c.getDoubles(vals, 0, c._len);
-    for (int i = 0; i < rows; ++i)
-      sum += vals[i];
-    return sum;
-  }
 
   @Setup
   public void setup() {
@@ -121,10 +74,6 @@ public class NewChunkBench {
       for (int row = 0; row < rows; ++row) {
         raw[col][row] = get(col, row);
       }
-    }
-    chunks = new Chunk[cols];
-    for (int col = 0; col < cols; ++col) {
-      chunks[col] = new NewChunk(raw[col]).compress();
     }
   }
 
