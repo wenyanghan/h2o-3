@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 public class NewChunkBench {
 
-  @Param({"1000", "100000"})
+  @Param({"10000", "1000000"})
   private int rows;
   private double[][] raw;
   private int cols = 7;
