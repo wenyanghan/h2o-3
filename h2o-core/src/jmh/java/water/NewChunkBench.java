@@ -1,5 +1,6 @@
 package water;
 
+import org.junit.Assert;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.profile.StackProfiler;
@@ -7,6 +8,8 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import water.fvec.C0DChunk;
+import water.fvec.C0LChunk;
 import water.fvec.Chunk;
 import water.fvec.NewChunk;
 
@@ -27,76 +30,50 @@ public class NewChunkBench {
 
   @Param({"10000", "1000000"})
   private int rows;
-  private double[][] raw;
-  private int cols = 7;
-  private static double baseD = Math.PI;
-  private static double baseF = 1.1;
+  private double[] rawDouble;
+  private double[] rawFloat;
+  private double[] rawLong;
+  private double[] rawInt;
 
   @Benchmark
   public void writeIntegers() {
-    Chunk[] chunks = new Chunk[2];
-    for (int col = 0; col < 2; ++col) {
-      chunks[col] = new NewChunk(raw[col]).compress();
-    }
+    Chunk chunks = new NewChunk(rawInt).compress();
+    Assert.assertTrue(chunks instanceof C0LChunk);
   }
 
   @Benchmark
   public void writeFloats() {
-    Chunk chunks = new NewChunk(raw[4]).compress();
+    Chunk chunks = new NewChunk(rawFloat).compress();
+    Assert.assertTrue(chunks instanceof C0DChunk);
   }
 
   @Benchmark
   public void writeDoubles() {
-    Chunk chunks = new NewChunk(raw[5]).compress();
-  }
-
-  @Benchmark
-  public void writeBigLong() {
-    Chunk chunks = new NewChunk(raw[6]).compress();
-
+    Chunk chunks = new NewChunk(rawDouble).compress();
+    Assert.assertTrue(chunks instanceof C0DChunk);
   }
 
   @Benchmark
   public void writeLongs() {
-    Chunk chunks = new NewChunk(raw[2]).compress();
+    Chunk chunks = new NewChunk(rawLong).compress();
+    Assert.assertTrue(chunks instanceof C0LChunk);
   }
-
-  @Benchmark
-  public void writeSparse() {
-    Chunk chunks = new NewChunk(raw[3]).compress();
-  }
-
 
   @Setup
   public void setup() {
-    raw = new double[cols][rows]; // generate data in double array
-    for (int col = 0; col < cols; ++col) {
-      for (int row = 0; row < rows; ++row) {
-        raw[col][row] = get(col, row);
-      }
+    rawFloat = new double[rows]; // generate data
+    rawInt = new double[rows];
+    rawLong = new double[rows];
+    rawDouble = new double[rows];
+
+    for (int row = 0; row < rows; ++row) {
+      rawFloat[row] = 1.1+row%100;
+      rawInt[row] = row % 1000;
+      rawLong[row] = Integer.MAX_VALUE+row;
+      rawDouble[row] = Math.PI+row;
     }
   }
 
-  private static double get(int j, int i) {
-    switch (j % 4) { // do 4 chunk types
-      case 0:
-        return i % 200; //C1NChunk - 1 byte integer
-      case 1:
-        return i % 500; //C2Chunk - 2 byte integer
-      case 2:
-        return  i+Integer.MAX_VALUE;  // long
-      case 3:
-        return i == 17 ? 1 : 0; //CX0Chunk - sparse
-      case 4:
-        return baseF+i;  // float point
-      case 5:
-        return baseD+i; // double
-      case 6: // integer exceeding long
-        return Long.MAX_VALUE+i;
-      default:
-        throw H2O.unimpl();
-    }
-  }
 
   public static void main(String[] args) throws RunnerException {
     Options opt = new OptionsBuilder()
