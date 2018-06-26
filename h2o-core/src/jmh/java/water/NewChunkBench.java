@@ -25,15 +25,13 @@ import java.util.concurrent.TimeUnit;
 
 public class NewChunkBench {
 
-  @Param({"1000", "10000"})
-  private int cols;
   @Param({"1000", "100000"})
   private int rows;
   private Chunk[] chunks;
   private double[][] raw;
+  private int cols = 7;
   private static double baseD = Math.PI;
   private static double baseF = 1.1;
-  private static double baseL = 10.0*Integer.MAX_VALUE;
 
   @Benchmark
   public double rawArrayRead() {
@@ -118,7 +116,7 @@ public class NewChunkBench {
 
   @Setup
   public void setup() {
-    raw = new double[cols][rows];
+    raw = new double[cols][rows]; // generate data in double array
     for (int col = 0; col < cols; ++col) {
       for (int row = 0; row < rows; ++row) {
         raw[col][row] = get(col, row);
@@ -137,15 +135,15 @@ public class NewChunkBench {
       case 1:
         return i % 500; //C2Chunk - 2 byte integer
       case 2:
-        return  i*Integer.MAX_VALUE;
+        return  i+Integer.MAX_VALUE;  // long
       case 3:
         return i == 17 ? 1 : 0; //CX0Chunk - sparse
-      case 4: // long
-        return baseL+j+i; // long
-      case 5:
+      case 4:
         return baseF+i;  // float point
-      case 6:
-        return baseD+i+j; // double
+      case 5:
+        return baseD+i; // double
+      case 6: // integer exceeding long
+        return Long.MAX_VALUE+i;
       default:
         throw H2O.unimpl();
     }
